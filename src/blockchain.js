@@ -62,9 +62,24 @@ const findDifficulty = () => {
     newestBlock.index % DIFFICULTY_ADJUSMENT_INTERVAL === 0 &&
     newestBlock.index !== 0
   ) {
-    // calculate new difficutly
+    return calculateNewDifficulty(newestBlock, getBlockchain());
   } else {
     return newestBlock.difficulty;
+  }
+};
+
+const calculateNewDifficulty = (newestBlock, blockchain) => {
+  const lastCalculatedBlock =
+    blockchain[blockchain.length - DIFFICULTY_ADJUSMENT_INTERVAL];
+  const timeExpected =
+    BLOCK_GENERATION_INTERVAL * DIFFICULTY_ADJUSMENT_INTERVAL;
+  const timeTaken = newestBlock.timestamp - lastCalculatedBlock.timestamp;
+  if (timeTaken < timeExpected / 2) {
+    return lastCalculatedBlock.difficulty + 1;
+  } else if (timeTaken > timeExpected * 2) {
+    return lastCalculatedBlock.difficulty - 1;
+  } else {
+    return lastCalculatedBlock.difficulty;
   }
 };
 
