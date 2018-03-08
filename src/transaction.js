@@ -92,7 +92,21 @@ A(40) ---> TRANSACTION  ----> ZZ(10)
 */
 
 const isTxInStructureValid = (txIn) => {
-  // to do
+  if(txIn === null){
+    console.log("The txIn appears to be null")
+    return false;
+  } else if(typeof txIn.signature !== "string"){
+    console.log("The txIn doesn't have a valid signature")
+    return false;
+  } else if(typeof txIn.txOutId !== "string"){
+    console.log("The txIn doesn't have a valid txOutId")
+    return false;
+  } else if(typeof txIn.txOutIndex !== "number"){
+    console.log("The txIn doesn't have a valid txOutIndex")
+    return false;
+  } else {
+    return true;
+  }
 }
 
 const isTxOutStructureValid = (txOut) => {
