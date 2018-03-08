@@ -80,6 +80,42 @@ const updateUTxOuts = (newTxs, uTxOutList) => {
   const resultingUTxOuts = uTxOutList
     .filter(uTxO => !findUTxOut(uTxO.txOutId, uTxO.txOutIndex, spentTxOuts))
     .concat(newUTxOuts);
-
   return resultingUTxOuts;
+};
+
+/*
+[(), B, C, D, E, F, G, ZZ, MM]
+
+
+A(40) ---> TRANSACTION  ----> ZZ(10)
+                        ----> MM(30)
+*/
+
+const isTxInStructureValid = (txIn) => {
+  // to do
+}
+
+const isTxOutStructureValid = (txOut) => {
+
+}
+
+const isTxStructureValid = tx => {
+  if (typeof tx.id !== "string") {
+    console.log("Tx ID is not valid");
+    return false;
+  } else if (!(tx.txIns instanceof Array)) {
+    console.log("The txIns are not an array");
+    return false;
+  } else if(){
+    console.log("The structure of one of the txIn is not valid")
+    return false;
+  } else if(!(tx.txOuts instanceof Array)){
+    console.log("The txOuts are not an array")
+    return false;
+  } else if(){
+    console.log("The structure of one of the txOut is not valid")
+    return false;
+  } else {
+    return true
+  }
 };
