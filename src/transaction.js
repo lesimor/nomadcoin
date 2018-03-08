@@ -35,19 +35,21 @@ class UTxOut {
 let uTxOuts = [];
 
 const getTxId = tx => {
+  
   const txInContent = tx.txIns
-    .map(txIn => txIn.uTxOutId + txIn.txOutIndex)
+    .map(txIn => txIn.txOutId + txIn.txOutIndex)
     .reduce((a, b) => a + b, "");
-
+  
   const txOutContent = tx.txOuts
     .map(txOut => txOut.address + txOut.amount)
     .reduce((a, b) => a + b, "");
-  return CryptoJS.SHA256(txInContent + txOutContent).toString();
+
+  return CryptoJS.SHA256(txInContent + txOutContent + tx.timestamp).toString();
 };
 
 const findUTxOut = (txOutId, txOutIndex, uTxOutList) => {
   return uTxOutList.find(
-    uTxOut => uTxOut.txOutId === txOutId && uTxOut.txOutIndex === txOutIndex
+    uTxO => uTxO.txOutId === txOutId && uTxO.txOutIndex === txOutIndex
   );
 };
 
@@ -166,12 +168,23 @@ const isTxStructureValid = tx => {
   }
 };
 
+const validateTxIn = (txIn, tx, uTxOutList) => {
+  const wantedTxOut = uTxOutList.find(uTxO => uTxO.txOutId === txIn.txOutId && uTxO.txOutIndex === txIn.txOutIndex);
+  if(wantedTxOut === null){
+    return false;
+  } else {
+    const address = wantedTxOut.address;
+    const key = ec.keyFromPublic(address, "hex");
+    return key.verify(tx.id, txIn.signature);
+  }
+}
+
 const validateTx = (tx, uTxOutList) => {
   if (getTxId(tx) !== tx.id) {
     return false;
   }
 
-  const hasValidTxIns = // todo
+  const hasValidTxIns = tx.txIns.map(txIn => validateTxIn(txIn, tx, uTxOutList));
 
   if (!hasValidTxIns) {
     return false;
