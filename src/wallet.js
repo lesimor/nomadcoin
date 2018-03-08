@@ -43,9 +43,29 @@ const initWallet = () => {
   fs.writeFileSync(privateKeyLocation, newPrivateKey);
 };
 
+const findAmountInUTxOuts = (amountNeeded, myUTxOuts) => {
+  let currentAmount = 0;
+  const includedUTxOuts = [];
+  for (const myUTxOut of myUTxOuts) {
+    includedUTxOuts.push(myUTxOut);
+    currentAmount = currentAmount = myUTxOut.amount;
+    if (currentAmount >= amountNeeded) {
+      const leftOverAmount = currentAmount - amountNeeded;
+      return { includedUTxOuts, leftOverAmount };
+    }
+  }
+  console.log("Not enough founds");
+  return false;
+};
+
 const createTx = (receiverAddress, amount, privateKey, uTxOutList) => {
   const myAddress = getPublicKey(privateKey);
   const myUTxOuts = uTxOutList.filter(uTxO => uTxO.address === myAddress);
+
+  const { includedUTxOuts, leftOverAmount } = findAmountInUTxOuts(
+    amount,
+    myUTxOuts
+  );
 };
 
 module.exports = {
