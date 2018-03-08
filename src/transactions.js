@@ -34,8 +34,6 @@ class UTxOut {
   }
 }
 
-let uTxOuts = [];
-
 const getTxId = tx => {
   const txInContent = tx.txIns
     .map(txIn => txIn.txOutId + txIn.txOutIndex)
