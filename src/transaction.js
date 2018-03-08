@@ -1,7 +1,8 @@
 const CryptoJS = require("crypto-js"),
-  elliptic = require("elliptic");
+  elliptic = require("elliptic"),
+  utils = require("./utils");
 
-const ec = new EC("secp256k1");
+const ec = new elliptic.ec("secp256k1");
 
 class TxOut {
   constructor(address, amount) {
@@ -37,6 +38,11 @@ const getTxId = tx => {
   const txInContent = tx.txIns
     .map(txIn => txIn.uTxOutId + txIn.txOutIndex)
     .reduce((a, b) => a + b, "");
+
+  const txOutContent = tx.txOuts
+    .map(txOut => txOut.address + txOut.amount)
+    .reduce((a, b) => a + b, "");
+  return CryptoJS.SHA256(txInContent + txOutContent).toString();
 };
 
 const findUTxOut = (txOutId, txOutIndex, uTxOutList) => {
@@ -52,5 +58,17 @@ const signTxIn = (tx, txInIndex, privateKey, uTxOut) => {
   if (referencedUTxOut === null) {
     return;
   }
-  // To do: Sing the txIn
+  const key = ec.keyFromPrivate(privateKey, "hex");
+  const signature = utils.toHexString(key.sign(dataToSign).toDER());
+  return signature;
+};
+
+const updateUTxOuts = (newTxs, uTxOutList) => {
+  const newUTxOuts = newTxs
+    .map(tx => {
+      tx.txOuts.map((txOut, index) => {
+        new UTxOut(tx.id, index, txOut.address, txOut.amount);
+      });
+    })
+    .reduce((a, b) => a.contact(b), []);
 };
