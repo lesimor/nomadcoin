@@ -2,10 +2,12 @@ const express = require("express"),
   bodyParser = require("body-parser"),
   morgan = require("morgan"),
   Blockchain = require("./blockchain"),
-  P2P = require("./p2p");
+  P2P = require("./p2p"),
+  Wallet = require("./wallet");
 
 const { getBlockchain, createNewBlock } = Blockchain;
 const { startP2PServer, connectToPeers } = P2P;
+const { initWallet } = Wallet;
 
 // Psssst. Don't forget about typing 'export HTTP_PORT=4000' in your console
 const PORT = process.env.HTTP_PORT || 3000;
@@ -34,4 +36,5 @@ const server = app.listen(PORT, () =>
   console.log(`Nomadcoin HTTP Server running on port ${PORT} ✅`)
 );
 
+initWallet();
 startP2PServer(server);
