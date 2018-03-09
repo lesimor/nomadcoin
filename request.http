@@ -6,10 +6,6 @@ GET http://localhost:3000/blocks
 POST http://localhost:3000/blocks
 Content-Type: application/json
 
-{
-    "data": "Babbab block baby!!"
-}
-
 ###
 
 POST http://localhost:3000/peers
