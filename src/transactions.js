@@ -327,5 +327,6 @@ module.exports = {
   Transaction,
   TxOut,
   createCoinbaseTx,
-  processTxs
+  processTxs,
+  validateTx
 };
