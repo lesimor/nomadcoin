@@ -217,9 +217,9 @@ const isChainValid = candidateChain => {
 
   let foreignUTxOuts = [];
 
-  for (let i = 1; i < candidateChain.length; i++) {
+  for (let i = 0; i < candidateChain.length; i++) {
     const currentBlock = candidateChain[i];
-    if (!isBlockValid(currentBlock, candidateChain[i - 1])) {
+    if (i !== 0 && !isBlockValid(currentBlock, candidateChain[i - 1])) {
       return null;
     }
 
