@@ -71,7 +71,7 @@ const createTxOuts = (receiverAddress, myAddress, amount, leftOverAmount) => {
     return [receiverTxOut];
   } else {
     const leftOverTxOut = new TxOut(myAddress, leftOverAmount);
-    return [receiverTxOut, leftOverAmount];
+    return [receiverTxOut, leftOverTxOut];
   }
 };
 
@@ -87,14 +87,13 @@ const createTx = (receiverAddress, amount, privateKey, uTxOutList) => {
   const toUnsignedTxIn = uTxOut => {
     const txIn = new TxIn();
     txIn.txOutId = uTxOut.txOutId;
-    tx.txOutIndex = uTxOut.txOutIndex;
+    txIn.txOutIndex = uTxOut.txOutIndex;
     return txIn;
   };
 
   const unsignedTxIns = includedUTxOuts.map(toUnsignedTxIn);
 
   const tx = new Transaction();
-  console.log(tx);
 
   tx.txIns = unsignedTxIns;
   tx.txOuts = createTxOuts(receiverAddress, myAddress, amount, leftOverAmount);
@@ -105,6 +104,7 @@ const createTx = (receiverAddress, amount, privateKey, uTxOutList) => {
     txIn.signature = signTxIn(tx, index, privateKey, uTxOutList);
     return txIn;
   });
+
   return tx;
 };
 

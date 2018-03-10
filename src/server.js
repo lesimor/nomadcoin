@@ -46,8 +46,8 @@ app
       if (address === undefined || amount === undefined) {
         throw Error("Please specify and address and an amount");
       } else {
-        const res = sendTx(address, amount);
-        res.send(res);
+        const resPonse = sendTx(address, amount);
+        res.send(resPonse);
       }
     } catch (e) {
       res.status(400).send(e.message);
