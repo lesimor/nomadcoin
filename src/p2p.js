@@ -44,6 +44,7 @@ const blockchainResponse = data => {
   };
 };
 
+// changed function name
 const getAllMempool = () => {
   return {
     type: REQUEST_MEMPOOL,
@@ -77,7 +78,7 @@ const initSocketConnection = ws => {
   handleSocketError(ws);
   sendMessage(ws, getLatest());
   setTimeout(() => {
-    sendMessage(ws, getAllMempool());
+    sendMessage(ws, getAllMempool()); // changed line
   }, 1000);
 };
 
@@ -168,7 +169,7 @@ const responseAll = () => blockchainResponse(getBlockchain());
 
 const broadcastNewBlock = () => sendMessageToAll(responseLatest());
 
-const broadcastMempool = () => sendMessageToAll(returnMempool());
+const broadcastMempool = () => sendMessageToAll(returnMempool()); // <--- new line
 
 const handleSocketError = ws => {
   const closeSocketConnection = ws => {
@@ -190,5 +191,5 @@ module.exports = {
   startP2PServer,
   connectToPeers,
   broadcastNewBlock,
-  broadcastMempool
+  broadcastMempool // <--- new line
 };

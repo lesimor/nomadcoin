@@ -294,12 +294,12 @@ const sendTx = (address, amount) => {
     getMempool()
   );
   addToMempool(tx, getUTxOutList());
-  require("./p2p").broadcastMempool();
+  require("./p2p").broadcastMempool(); // <--- new line
   return tx;
 };
 
 const handleIncomingTx = tx => {
-  addToMempool(tx, getUTxOutList());
+  addToMempool(tx, getUTxOutList()); // <-- new line
 };
 
 module.exports = {
