@@ -1,4 +1,5 @@
 const WebSockets = require("ws"),
+  Mempool = require("./mempool"),
   Blockchain = require("./blockchain");
 
 const {
@@ -6,8 +7,11 @@ const {
   isBlockStructureValid,
   replaceChain,
   getBlockchain,
-  addBlockToChain
+  addBlockToChain,
+  handleIncomingTx
 } = Blockchain;
+
+const { getMempool } = Mempool;
 
 const sockets = [];
 
@@ -15,6 +19,8 @@ const sockets = [];
 const GET_LATEST = "GET_LATEST";
 const GET_ALL = "GET_ALL";
 const BLOCKCHAIN_RESPONSE = "BLOCKCHAIN_RESPONSE";
+const REQUEST_MEMPOOL = "REQUEST_MEMPOOL";
+const MEMPOOL_RESPONSE = "MEMPOOL_RESPONSE";
 
 // Message Creators
 const getLatest = () => {
@@ -38,12 +44,29 @@ const blockchainResponse = data => {
   };
 };
 
+const getMempool = () => {
+  return {
+    type: REQUEST_MEMPOOL,
+    data: null
+  };
+};
+
+const mempoolResponse = data => {
+  return {
+    type: MEMPOOL_RESPONSE,
+    data
+  };
+};
+
 const getSockets = () => sockets;
 
 const startP2PServer = server => {
   const wsServer = new WebSockets.Server({ server });
   wsServer.on("connection", ws => {
     initSocketConnection(ws);
+  });
+  wsServer.on("error", () => {
+    console.log(error);
   });
   console.log("Nomadcoin P2P Server running");
 };
@@ -53,6 +76,9 @@ const initSocketConnection = ws => {
   handleSocketMessages(ws);
   handleSocketError(ws);
   sendMessage(ws, getLatest());
+  setTimeout(() => {
+    sendMessage(ws, getMempool());
+  }, 1000);
 };
 
 const parseData = data => {
@@ -70,7 +96,6 @@ const handleSocketMessages = ws => {
     if (message === null) {
       return;
     }
-    console.log(message);
     switch (message.type) {
       case GET_LATEST:
         sendMessage(ws, responseLatest());
@@ -84,6 +109,22 @@ const handleSocketMessages = ws => {
           break;
         }
         handleBlockchainResponse(receivedBlocks);
+        break;
+      case REQUEST_MEMPOOL:
+        sendMessage(ws, returnMempool());
+        break;
+      case MEMPOOL_RESPONSE:
+        const receivedTxs = message.data;
+        if (receivedTxs === null) {
+          return;
+        }
+        receivedTxs.forEach(tx => {
+          try {
+            handleIncomingTx(tx);
+          } catch (e) {
+            console.log(e);
+          }
+        });
         break;
     }
   });
@@ -112,6 +153,8 @@ const handleBlockchainResponse = receivedBlocks => {
     }
   }
 };
+
+const returnMempool = () => mempoolResponse(getMempool());
 
 const sendMessage = (ws, message) => ws.send(JSON.stringify(message));
 
