@@ -27,6 +27,6 @@ POST http://localhost:3000/transactions/
 Content-Type: application/json
 
 {
-    "address": "04f20aec39b4c5f79355c053fdaf30410820400bb83ad93dd8ff16834b555e0f6262efba6ea94a87d3c267b5e6aca433ca89b342ac95c40230349ea4bf9caff1ed",
-    "amount": 40
+    "address": "04f20aac39b4c5f79355c053fdaf30410820400bb83ad93dd8ff16834b555e0f6262efba6ea94a87d3c267b5e6aca433ca89b342ac95c40230349ea4bf9caff1ed",
+    "amount": 10
 }
