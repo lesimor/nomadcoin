@@ -37,7 +37,7 @@ app.post("/peers", (req, res) => {
 });
 
 const server = app.listen(PORT, () =>
-  console.log("Nomadcoin HTTP Server running on port ${PORT}")
+  console.log(`Nomadcoin HTTP Server running on port ${PORT}`)
 );
 
 startP2PServer(server);
