@@ -1,14 +1,14 @@
 const CryptoJS = require("crypto-js");
 
 class Block {
-    /**
-     * 블록 체인을 구성하는 하나의 블록 단위
-     * @param index: 해당 블록의 블록체인에서의 위치(Genesis block의 index는 0)
-     * @param hash: 해당 블록이 갖고 있는 정보를 바탕으로 생성되는 hash값, 모든 블록마다 같은 hash화 로직이 적용
-     * @param previousHash: 직전 블록의 hash값
-     * @param timestamp: 블록이 생성된 시점
-     * @param data: 해당 블록이 갖고 있는 데이터
-     */
+  /**
+   * 블록 체인을 구성하는 하나의 블록 단위
+   * @param index: 해당 블록의 블록체인에서의 위치(Genesis block의 index는 0)
+   * @param hash: 해당 블록이 갖고 있는 정보를 바탕으로 생성되는 hash값, 모든 블록마다 같은 hash화 로직이 적용
+   * @param previousHash: 직전 블록의 hash값
+   * @param timestamp: 블록이 생성된 시점
+   * @param data: 해당 블록이 갖고 있는 데이터
+   */
   constructor(index, hash, previousHash, timestamp, data) {
     this.index = index;
     this.hash = hash;
