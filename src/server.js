@@ -14,10 +14,16 @@ const app = express();
 app.use(bodyParser.json());
 app.use(morgan("combined"));
 
+/**
+ * 블록체인에 들어 있는 블록 리스트
+ */
 app.get("/blocks", (req, res) => {
   res.send(getBlockchain());
 });
 
+/**
+ * 블록 체인에 새로운 블록 추가
+ */
 app.post("/blocks", (req, res) => {
   const { body: { data } } = req;
   const newBlock = createNewBlock(data);
