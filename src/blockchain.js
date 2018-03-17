@@ -102,8 +102,8 @@ const getBlocksHash = block =>
  * @param latestBlock: 블록체인의 가장 마지막 블록
  * @returns {boolean}
  */
-const isNewBlockValid = (candidateBlock, latestBlock) => {
-  if (!isNewStructureValid(candidateBlock)) {
+const isBlockValid = (candidateBlock, latestBlock) => {
+  if (!isBlockStructureValid(candidateBlock)) {
     console.log("The candidate block structure is not valid");
     return false;
   } else if (latestBlock.index + 1 !== candidateBlock.index) {
@@ -126,7 +126,7 @@ const isNewBlockValid = (candidateBlock, latestBlock) => {
  * @param block: 검증하고자 하는 블록
  * @returns {boolean}
  */
-const isNewStructureValid = block => {
+const isBlockStructureValid = block => {
   return (
     typeof block.index === "number" &&
     typeof block.hash === "string" &&
@@ -152,7 +152,7 @@ const isChainValid = candidateChain => {
     return false;
   }
   for (let i = 1; i < candidateChain.length; i++) {
-    if (!isNewBlockValid(candidateChain[i], candidateChain[i - 1])) {
+    if (!isBlockValid(candidateChain[i], candidateChain[i - 1])) {
       return false;
     }
   }
@@ -182,8 +182,8 @@ const replaceChain = candidateChain => {
  * @returns {boolean}
  */
 const addBlockToChain = candidateBlock => {
-  if (isNewBlockValid(candidateBlock, getLastBlock())) {
-    getBlockchain().push(candidateBlock);
+  if (isBlockValid(candidateBlock, getLastBlock())) {
+    blockchain.push(candidateBlock);
     return true;
   } else {
     return false;
@@ -193,5 +193,6 @@ const addBlockToChain = candidateBlock => {
 module.exports = {
   getLastBlock,
   getBlockchain,
-  createNewBlock
+  createNewBlock,
+  isBlockStructureValid
 };

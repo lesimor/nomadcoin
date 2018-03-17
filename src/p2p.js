@@ -1,7 +1,7 @@
 const WebSockets = require("ws"),
   Blockchain = require("./blockchain");
 
-const { getLastBlock } = Blockchain;
+const { getLastBlock, isBlockStructureValid } = Blockchain;
 
 const sockets = [];
 
@@ -80,13 +80,34 @@ const handleSocketMessages = ws => {
     console.log(message);
     switch (message.type) {
       case GET_LATEST:
-        sendMessage(ws, getLastBlock());
+        sendMessage(ws, responseLatest());
+        break;
+      case BLOCKCHAIN_RESPONSE:
+        const receivedBlocks = message.data;
+        if (receivedBlocks === null) {
+          break;
+        }
+        handleBlockchainResponse(receivedBlocks);
         break;
     }
   });
 };
 
+const handleBlockchainResponse = receivedBlocks => {
+  if (receivedBlocks.length === 0) {
+    console.log("Received blocks have a length of 0");
+    return;
+  }
+  const latestBlockReceived = receivedBlocks[receivedBlocks.length - 1];
+  if (!isBlockStructureValid(latestBlockReceived)) {
+    console.log("The block structure of the block received is not valid");
+    return;
+  }
+};
+
 const sendMessage = (ws, message) => ws.send(JSON.stringify(message));
+
+const responseLatest = () => blockchainResponse([getLastBlock()]);
 
 /**
  * 에러가 발생했을 경우 해당 socket을 닫고 socket 리스트에서 해당 socket을 제거.
