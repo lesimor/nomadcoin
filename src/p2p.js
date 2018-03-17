@@ -88,11 +88,20 @@ const handleSocketMessages = ws => {
 
 const sendMessage = (ws, message) => ws.send(JSON.stringify(message));
 
+/**
+ * 에러가 발생했을 경우 해당 socket을 닫고 socket 리스트에서 해당 socket을 제거.
+ * @param ws: webSocket 객체
+ */
 const handleSocketError = ws => {
   const closeSocketConnection = ws => {
     ws.close();
     sockets.splice(sockets.indexOf(ws), 1);
   };
+  /**
+   * 이벤트 등록
+   * close: 해당 socket을 닫은 경우
+   * error: 해당 socket에서 에러 발생
+   */
   ws.on("close", () => closeSocketConnection(ws));
   ws.on("error", () => closeSocketConnection(ws));
 };
