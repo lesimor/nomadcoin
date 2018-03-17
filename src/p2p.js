@@ -10,7 +10,7 @@ const GET_LATEST = "GET_LATEST";
 const GET_ALL = "GET_ALL";
 const BLOCKCHAIN_RESPONSE = "BLOCKCHAIN_RESPONSE";
 
-// Message Creators
+// Message Creators START //
 const getLatest = () => {
   return {
     type: GET_LATEST,
@@ -31,12 +31,17 @@ const blockchainResponse = data => {
     data
   };
 };
+// Message Creators END //
 
 const getSockets = () => sockets;
 
 const startP2PServer = server => {
   const wsServer = new WebSockets.Server({ server });
   wsServer.on("connection", ws => {
+    /**
+     * 해당 서버에 이벤트 등록
+     * connection => 다른 서버가 네트워크에 접속한 경우.
+      */
     initSocketConnection(ws);
   });
   console.log("Nomadcoin P2P Server running");
@@ -62,6 +67,10 @@ const parseData = data => {
   }
 };
 
+/**
+ * 해당 webSocket에 이벤트 등록
+ * @param ws
+ */
 const handleSocketMessages = ws => {
   ws.on("message", data => {
     const message = parseData(data);
@@ -90,7 +99,7 @@ const handleSocketError = ws => {
 
 /**
  * 새로운 Peer와 연결
- * @param newPeer
+ * @param newPeer: websocket 주소 ex)ws://www.example.com
  */
 const connectToPeers = newPeer => {
   const ws = new WebSockets(newPeer);
