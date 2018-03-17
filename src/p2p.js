@@ -11,6 +11,7 @@ const GET_ALL = "GET_ALL";
 const BLOCKCHAIN_RESPONSE = "BLOCKCHAIN_RESPONSE";
 
 // Message Creators START //
+// 일종의 데이터 컨테이너.
 const getLatest = () => {
   return {
     type: GET_LATEST,
