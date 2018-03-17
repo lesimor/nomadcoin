@@ -30,6 +30,9 @@ app.post("/blocks", (req, res) => {
   res.send(newBlock);
 });
 
+/**
+ * p2p 네트워크의에 접속
+ */
 app.post("/peers", (req, res) => {
   const { body: { peer } } = req;
   connectToPeers(peer);

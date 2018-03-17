@@ -42,6 +42,10 @@ const startP2PServer = server => {
   console.log("Nomadcoin P2P Server running");
 };
 
+/**
+ * p2p 네트워크 socket 리스트에 새로운 socket을 추가.
+ * @param socket
+ */
 const initSocketConnection = ws => {
   sockets.push(ws);
   handleSocketMessages(ws);
@@ -84,6 +88,10 @@ const handleSocketError = ws => {
   ws.on("error", () => closeSocketConnection(ws));
 };
 
+/**
+ * 새로운 Peer와 연결
+ * @param newPeer
+ */
 const connectToPeers = newPeer => {
   const ws = new WebSockets(newPeer);
   ws.on("open", () => {
