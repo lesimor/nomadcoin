@@ -39,7 +39,7 @@ let blockchain = [genesisBlock];
 /**
  * 블록체인의 가장 마지막 블록을 가져온다.
  */
-const getLastBlock = () => blockchain[blockchain.length - 1];
+const getNewestBlock = () => blockchain[blockchain.length - 1];
 
 /**
  * 블록이 생성되는 시즘의 TimeStamp 값을 생성하는 함수.
@@ -69,7 +69,7 @@ const createHash = (index, previousHash, timestamp, data) =>
  * @returns {Block}
  */
 const createNewBlock = data => {
-  const previousBlock = getLastBlock();
+  const previousBlock = getNewestBlock();
   const newBlockIndex = previousBlock.index + 1;
   const newTimestamp = getTimestamp();
   const newHash = createHash(
@@ -182,7 +182,7 @@ const replaceChain = candidateChain => {
  * @returns {boolean}
  */
 const addBlockToChain = candidateBlock => {
-  if (isBlockValid(candidateBlock, getLastBlock())) {
+  if (isBlockValid(candidateBlock, getNewestBlock())) {
     blockchain.push(candidateBlock);
     return true;
   } else {
@@ -191,8 +191,10 @@ const addBlockToChain = candidateBlock => {
 };
 
 module.exports = {
-  getLastBlock,
+  getNewestBlock,
   getBlockchain,
   createNewBlock,
-  isBlockStructureValid
+  isBlockStructureValid,
+  addBlockToChain,
+  replaceChain
 };
