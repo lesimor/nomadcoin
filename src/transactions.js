@@ -8,7 +8,10 @@ const COINBASE_AMOUNT = 50;
 
 class TxOut {
   constructor(address, amount) {
+    // Destination address.
     this.address = address;
+
+    // Amount of coins
     this.amount = amount;
   }
 }
@@ -34,6 +37,13 @@ class UTxOut {
   }
 }
 
+let uTxOuts = [];
+
+/**
+ * Generate Transaction ID with its contents
+ * @param {Transaction} tx
+ * @returns {String}: Hash ID with transaction contents.
+ */
 const getTxId = tx => {
   const txInContent = tx.txIns
     .map(txIn => txIn.txOutId + txIn.txOutIndex)
@@ -46,13 +56,28 @@ const getTxId = tx => {
   return CryptoJS.SHA256(txInContent + txOutContent + tx.timestamp).toString();
 };
 
+/**
+ * Find unspent transaction output among unspent transaction output list
+ * @param {String} txOutId : Target unspent transaction ID.
+ * @param {Number} txOutIndex : Target unspent transaction index.
+ * @param {Array} uTxOutList : Unspent transaction output list.
+ * @returns {UTxOut | null}
+ */
 const findUTxOut = (txOutId, txOutIndex, uTxOutList) => {
   return uTxOutList.find(
     uTxO => uTxO.txOutId === txOutId && uTxO.txOutIndex === txOutIndex
   );
 };
 
-const signTxIn = (tx, txInIndex, privateKey, uTxOutList) => {
+/**
+ * Sign on transaction input with private key.
+ * @param {TxIn} tx : Target transaction input.
+ * @param {Number} txInIndex : Target transaction index.
+ * @param {String} privateKey : Private key to use for signing.
+ * @param uTxOut
+ * @returns {String|null} : Signature string.
+ */
+const signTxIn = (tx, txInIndex, privateKey, uTxOut) => {
   const txIn = tx.txIns[txInIndex];
   const dataToSign = tx.id;
   const referencedUTxOut = findUTxOut(txIn.txOutId, tx.txOutIndex, uTxOutList);
@@ -76,7 +101,15 @@ const getPublicKey = privateKey => {
     .encode("hex");
 };
 
+/**
+ * Update unspent transactions with new transactions
+ * @param {Transaction[]} newTxs : New transactions
+ * @param {UTxOut[]} uTxOutList : Unspent transaction output list.
+ * @returns {UTxOut[]}
+ */
 const updateUTxOuts = (newTxs, uTxOutList) => {
+  // Create unspent transactions with new transactions' outputs.
+  // To be added on global uTxOutList
   const newUTxOuts = newTxs
     .map(tx => {
       tx.txOuts.map((txOut, index) => {
@@ -85,11 +118,14 @@ const updateUTxOuts = (newTxs, uTxOutList) => {
     })
     .reduce((a, b) => a.concat(b), []);
 
+  // All txIns of new transactions => Unspent transactions
+  // To remove splitted UTxOut from uTxOutList
   const spentTxOuts = newTxs
     .map(tx => tx.txIns)
     .reduce((a, b) => a.concat(b), [])
     .map(txIn => new UTxOut(txIn.txOutId, txIn.txOutIndex, "", 0));
 
+  // Remove previous unspent transaction
   const resultingUTxOuts = uTxOutList
     .filter(uTxO => !findUTxOut(uTxO.txOutId, uTxO.txOutIndex, spentTxOuts))
     .concat(newUTxOuts);
@@ -104,6 +140,11 @@ A(40) ---> TRANSACTION  ----> ZZ(10)
                         ----> MM(30)
 */
 
+/**
+ * Validate txIn
+ * @param {TxIn} txIn : Transaction INPUT to validate.
+ * @returns {boolean}
+ */
 const isTxInStructureValid = txIn => {
   if (txIn === null) {
     console.log("The txIn appears to be null");
@@ -122,6 +163,11 @@ const isTxInStructureValid = txIn => {
   }
 };
 
+/**
+ * Validate address
+ * @param {String} address: Address to validate
+ * @returns {boolean}
+ */
 const isAddressValid = address => {
   if (address.length !== 130) {
     console.log("The address length is not the expected one");
@@ -137,6 +183,12 @@ const isAddressValid = address => {
   }
 };
 
+
+/**
+ * Validate transaction OUTPUT
+ * @param {TxOut} txOut: Transaction output to validate
+ * @returns {boolean}
+ */
 const isTxOutStructureValid = txOut => {
   if (txOut === null) {
     return false;
@@ -154,6 +206,11 @@ const isTxOutStructureValid = txOut => {
   }
 };
 
+/**
+ * Validate transaction structure.
+ * @param {Transaction} tx: Transaction to validate.
+ * @returns {boolean}
+ */
 const isTxStructureValid = tx => {
   if (typeof tx.id !== "string") {
     console.log("Tx ID is not valid");
@@ -179,6 +236,13 @@ const isTxStructureValid = tx => {
   }
 };
 
+/**
+ * Validate transaction INPUT with KEY
+ * @param {TxIn} txIn:
+ * @param {Transaction} tx:
+ * @param uTxOutList
+ * @returns {*}
+ */
 const validateTxIn = (txIn, tx, uTxOutList) => {
   const wantedTxOut = uTxOutList.find(
     uTxO => uTxO.txOutId === txIn.txOutId && uTxO.txOutIndex === txIn.txOutIndex

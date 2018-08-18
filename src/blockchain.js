@@ -9,6 +9,16 @@ const DIFFICULTY_ADJUSMENT_INTERVAL = 10;
 
 class Block {
   constructor(index, hash, previousHash, timestamp, data, difficulty, nonce) {
+    /**
+     * Block that makes up a chain
+     * @param {Number} index
+     * @param {String} hash
+     * @param {String} previousHash
+     * @param {Number} timestamp
+     * @param {String} data
+     * @param {Number} difficulty
+     * @param {Number} nonce
+     */
     this.index = index;
     this.hash = hash;
     this.previousHash = previousHash;
@@ -19,6 +29,7 @@ class Block {
   }
 }
 
+// The first block
 const genesisBlock = new Block(
   0,
   "2C4CEB90344F20CC4C77D626247AED3ED530C1AEE3E6E85AD494498B17414CAC",
@@ -29,21 +40,27 @@ const genesisBlock = new Block(
   0
 );
 
+// Block chain array
 let blockchain = [genesisBlock];
 
 let uTxOuts = [];
 
+// Get the most recently added blocks
 const getNewestBlock = () => blockchain[blockchain.length - 1];
 
+// Get current time stamp
 const getTimestamp = () => Math.round(new Date().getTime() / 1000);
 
+// Get block chain
 const getBlockchain = () => blockchain;
 
 const createHash = (index, previousHash, timestamp, data, difficulty, nonce) =>
+// Generate hash with block attributes.
   CryptoJS.SHA256(
     index + previousHash + timestamp + JSON.stringify(data) + difficulty + nonce
   ).toString();
 
+// Create new block add add on block chain.
 const createNewBlock = data => {
   const previousBlock = getNewestBlock();
   const newBlockIndex = previousBlock.index + 1;
@@ -122,6 +139,7 @@ const hashMatchesDifficulty = (hash, difficulty) => {
   return hashInBinary.startsWith(requiredZeros);
 };
 
+// Get hash of the block
 const getBlocksHash = block =>
   createHash(
     block.index,
@@ -139,6 +157,7 @@ const isTimeStampValid = (newBlock, oldBlock) => {
   );
 };
 
+// Check if adding blocks is allowed
 const isBlockValid = (candidateBlock, latestBlock) => {
   if (!isBlockStructureValid(candidateBlock)) {
     console.log("The candidate block structure is not valid");
@@ -161,6 +180,7 @@ const isBlockValid = (candidateBlock, latestBlock) => {
   return true;
 };
 
+// Check the block attributes type to validate.
 const isBlockStructureValid = block => {
   return (
     typeof block.index === "number" &&
@@ -171,16 +191,22 @@ const isBlockStructureValid = block => {
   );
 };
 
+// Check the whole chain validation.
 const isChainValid = candidateChain => {
+  // Inner function to check genesis block
   const isGenesisValid = block => {
     return JSON.stringify(block) === JSON.stringify(genesisBlock);
   };
+
+  // Check genesis block.
   if (!isGenesisValid(candidateChain[0])) {
     console.log(
       "The candidateChains's genesisBlock is not the same as our genesisBlock"
     );
     return false;
   }
+
+  // Check block validation consequently.
   for (let i = 1; i < candidateChain.length; i++) {
     if (!isBlockValid(candidateChain[i], candidateChain[i - 1])) {
       return false;
@@ -195,7 +221,10 @@ const sumDifficulty = anyBlockchain =>
     .map(difficulty => Math.pow(2, difficulty))
     .reduce((a, b) => a + b);
 
+// Replace the old chain with the new one.
 const replaceChain = candidateChain => {
+  // If the new chain is valid and longer,
+  // replace the old one with the new one
   if (
     isChainValid(candidateChain) &&
     sumDifficulty(candidateChain) > sumDifficulty(getBlockchain())
@@ -207,6 +236,7 @@ const replaceChain = candidateChain => {
   }
 };
 
+// Add new block on the chain.
 const addBlockToChain = candidateBlock => {
   if (isBlockValid(candidateBlock, getNewestBlock())) {
     blockchain.push(candidateBlock);
