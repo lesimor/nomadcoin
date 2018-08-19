@@ -2,26 +2,21 @@ const elliptic = require("elliptic"),
   path = require("path"),
   fs = require("fs"),
   _ = require("lodash"),
-  Transactions = require("./transactions");
+  Transactions = require("./transactions"),
+  utils = require("./utils/util");
 
 const {
   getPublicKey,
-  getTxId,
   signTxIn,
   TxIn,
   Transaction,
   TxOut
 } = Transactions;
 
+const { getTxId, generatePrivateKey } = utils;
 const ec = new elliptic.ec("secp256k1");
 
 const privateKeyLocation = path.join(__dirname, "privateKey");
-
-const generatePrivateKey = () => {
-  const keyPair = ec.genKeyPair();
-  const privateKey = keyPair.getPrivate();
-  return privateKey.toString(16);
-};
 
 const getPrivateFromWallet = () => {
   const buffer = fs.readFileSync(privateKeyLocation, "utf8");

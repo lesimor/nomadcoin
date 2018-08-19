@@ -1,7 +1,7 @@
 const _ = require("lodash"),
-  Transactions = require("./transactions");
+  transaction_validators = require("./utils/validators/transaction_validator");
 
-const { validateTx } = Transactions;
+const { validateTx } = transaction_validators;
 
 let mempool = [];
 

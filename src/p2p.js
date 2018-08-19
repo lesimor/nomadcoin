@@ -1,10 +1,10 @@
 const WebSockets = require("ws"),
   Mempool = require("./mempool"),
+  blockchain_validators = require("./utils/validators/blockchain_validator"),
   Blockchain = require("./blockchain");
 
 const {
   getNewestBlock,
-  isBlockStructureValid,
   replaceChain,
   getBlockchain,
   addBlockToChain,
@@ -12,8 +12,10 @@ const {
 } = Blockchain;
 
 const { getMempool } = Mempool;
+const { isBlockStructureValid } = blockchain_validators;
 
 const sockets = [];
+const server_name = 'localhost:' + process.env.HTTP_PORT;
 
 // Messages Types
 const GET_LATEST = "GET_LATEST";
@@ -61,7 +63,12 @@ const mempoolResponse = data => {
 
 const getSockets = () => sockets;
 
+/**
+ * @param {Server} server
+ *    Server started with port
+ */
 const startP2PServer = server => {
+  // Create websocket server on the server.
   const wsServer = new WebSockets.Server({ server });
   wsServer.on("connection", ws => {
     initSocketConnection(ws);
@@ -72,16 +79,32 @@ const startP2PServer = server => {
   console.log("Nomadcoin P2P Server running");
 };
 
+/**
+ * Initialize socket connection with Websocket instance
+ * @param {WebSockets} ws
+ */
 const initSocketConnection = ws => {
+  // Add websocket to socket list.
   sockets.push(ws);
+
+  // Add event of socket handling
   handleSocketMessages(ws);
+
+  // Add event of error
   handleSocketError(ws);
+
+  // Send message of latest block.
   sendMessage(ws, getLatest());
   setTimeout(() => {
     sendMessage(ws, getAllMempool()); // changed line
   }, 1000);
 };
 
+/**
+ * Parse stringified json string to JSON
+ * @param {String} data
+ * @returns {Object} : Parsed json object.
+ */
 const parseData = data => {
   try {
     return JSON.parse(data);
@@ -91,6 +114,10 @@ const parseData = data => {
   }
 };
 
+/**
+ * Set websocket handling event.
+ * @param {WebSockets} ws
+ */
 const handleSocketMessages = ws => {
   ws.on("message", data => {
     const message = parseData(data);
@@ -132,6 +159,10 @@ const handleSocketMessages = ws => {
   });
 };
 
+/**
+ * Set block chain data handling event.
+ * @param {list} receivedBlocks
+ */
 const handleBlockchainResponse = receivedBlocks => {
   if (receivedBlocks.length === 0) {
     console.log("Received blocks have a length of 0");
@@ -142,6 +173,7 @@ const handleBlockchainResponse = receivedBlocks => {
     console.log("The block structure of the block received is not valid");
     return;
   }
+  // Newest block of this server.
   const newestBlock = getNewestBlock();
   if (latestBlockReceived.index > newestBlock.index) {
     if (newestBlock.hash === latestBlockReceived.previousHash) {
@@ -171,6 +203,12 @@ const broadcastNewBlock = () => sendMessageToAll(responseLatest());
 
 const broadcastMempool = () => sendMessageToAll(returnMempool()); // <--- new line
 
+/**
+ * Set error handling event.
+ * If the error occurred, the websocket server will be closed.
+ * Deleted from socket list also.
+ * @param {WebSockets} ws
+ */
 const handleSocketError = ws => {
   const closeSocketConnection = ws => {
     ws.close();
@@ -179,7 +217,11 @@ const handleSocketError = ws => {
   ws.on("close", () => closeSocketConnection(ws));
   ws.on("error", () => closeSocketConnection(ws));
 };
-
+/**
+ * Connect to peer with websocket
+ * @param {String} newPeer
+ *    Server host name of the new peer
+ */
 const connectToPeers = newPeer => {
   const ws = new WebSockets(newPeer);
   ws.on("open", () => {
