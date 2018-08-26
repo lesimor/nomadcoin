@@ -223,8 +223,8 @@ const sumDifficulty = anyBlockchain =>
  * @param {Block[]} candidateChain
  * @returns {boolean}
  */
-const replaceChain = candidateChain => {
-    const foreignUTxOuts = isChainValid(candidateChain);
+const replaceChain = (candidateChain) => {
+    const foreignUTxOuts = isChainValid(candidateChain, blockchain);
     const validChain = foreignUTxOuts !== null;
     if (
         validChain &&

@@ -62,11 +62,11 @@ const isBlockStructureValid = block => {
  * @param {Block[]} candidateChain
  * @returns {boolean}
  */
-const isChainValid = candidateChain => {
-    const isGenesisValid = block => {
-        return JSON.stringify(block) === JSON.stringify(genesisBlock);
+const isChainValid = (candidateChain, myChain) => {
+    const isGenesisValid = (a, b) => {
+        return JSON.stringify(a) === JSON.stringify(b);
     };
-    if (!isGenesisValid(candidateChain[0])) {
+    if (!isGenesisValid(candidateChain[0], myChain[0])) {
         console.log(
             "The candidateChains's genesisBlock is not the same as our genesisBlock"
         );
