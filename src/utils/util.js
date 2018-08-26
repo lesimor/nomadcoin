@@ -1,7 +1,6 @@
 const CryptoJS = require("crypto-js"),
     _ = require("lodash"),
     elliptic = require("elliptic");
-const {Block} = require("../block");
 const ec = new elliptic.ec("secp256k1");
 
 const toHexString = byteArray => {

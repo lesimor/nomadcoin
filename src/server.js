@@ -6,7 +6,7 @@ const express = require("express"),
   Mempool = require("./mempool"),
   Wallet = require("./wallet");
 
-const { getBlockchain, createNewBlock, getAccountBalance, sendTx } = Blockchain;
+const { getBlockchain, Block, getAccountBalance, sendTx } = Blockchain;
 const { startP2PServer, connectToPeers } = P2P;
 const { initWallet, getPublicFromWallet } = Wallet;
 const { getMempool } = Mempool;
@@ -24,7 +24,7 @@ app
     res.send(getBlockchain());
   })
   .post((req, res) => {
-    const newBlock = createNewBlock();
+    const newBlock = Block.createNewBlock();
     res.send(newBlock);
   });
 
