@@ -6,7 +6,7 @@ const {
     getBlockchain,
     addBlockToChain,
     handleIncomingTx
-} = require("./blockchain/blockchain");
+} = require("./blockchain/chain");
 
 const {getMempool} = require("./transaction/memPool");
 

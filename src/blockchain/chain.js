@@ -15,34 +15,12 @@ const {isBlockValid} = require("./validator");
 
 const {getTimestamp, sumDifficulty} = require("./utils");
 
-const {Block} = require("./block");
+const {Block, GENESIS_BLOCK} = require("./block");
 
 const BLOCK_GENERATION_INTERVAL = 10;
 const DIFFICULTY_ADJUSMENT_INTERVAL = 10;
 
-const genesisTx = {
-    txIns: [{signature: "", txOutId: "", txOutIndex: 0}],
-    txOuts: [
-        {
-            address:
-                "04f20aec39b4c5f79355c053fdaf30410820400bb83ad93dd8ff16834b555e0f6262efba6ea94a87d3c267b5e6aca433ca89b342ac95c40230349ea4bf9caff1ed",
-            amount: 50
-        }
-    ],
-    id: "ad67c73cd8e98af6db4ac14cc790664a890286d4b06c6da7ef223aef8c281e76"
-};
-
-const genesisBlock = new Block(
-    0,
-    "82a3ecd4e76576fccce9999d560a31c7ad1faff4a3f4c6e7507a227781a8537f",
-    "",
-    1518512316,
-    [genesisTx],
-    0,
-    0
-);
-
-let blockchain = [genesisBlock];
+let blockchain = [GENESIS_BLOCK];
 
 let uTxOuts = processTxs(blockchain[0].data, [], 0);
 
@@ -107,7 +85,7 @@ const calculateNewDifficulty = (newestBlock, blockchain) => {
 // TODO: split validation and foreign UTx handler
 const isChainValid = candidateChain => {
     const isGenesisValid = block => {
-        return JSON.stringify(block) === JSON.stringify(genesisBlock);
+        return JSON.stringify(block) === JSON.stringify(GENESIS_BLOCK);
     };
     if (!isGenesisValid(candidateChain[0])) {
         console.log(
