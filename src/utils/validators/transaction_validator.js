@@ -118,6 +118,7 @@ const validateTxIn = (txIn, tx, uTxOutList) => {
         console.log(`Didn't find the wanted uTxOut, the tx: ${tx} is invalid`);
         return false;
     } else {
+        console.log(wantedTxOut);
         const address = wantedTxOut.address;
         const key = ec.keyFromPublic(address, "hex");
         return key.verify(tx.id, txIn.signature);

@@ -1,6 +1,7 @@
 const WebSockets = require("ws"),
     blockchain_validators = require("./utils/validators/blockchain_validator"),
-    Blockchain = require("./blockchain");
+    Blockchain = require("./blockchain"),
+    Mempool = require("./memPool");
 
 const {
     getNewestBlock,
@@ -13,6 +14,8 @@ const {
 const {isBlockStructureValid} = blockchain_validators;
 
 const sockets = [];
+
+const { getMempool } = Mempool;
 
 // Messages Types
 const GET_LATEST = "GET_LATEST";
@@ -119,6 +122,7 @@ const handleSocketMessages = ws => {
         if (message === null) {
             return;
         }
+        console.log("Got " + message.type);
         switch (message.type) {
             case GET_LATEST:
                 sendMessage(ws, responseLatest());
@@ -186,7 +190,7 @@ const handleBlockchainResponse = receivedBlocks => {
  * Return mempool
  * @returns {{type, data}}
  */
-const returnMempool = () => mempoolResponse(getAllMempool());
+const returnMempool = () => mempoolResponse(getMempool());
 
 /**
  * Send message to websocket
