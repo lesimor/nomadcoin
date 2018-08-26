@@ -1,5 +1,5 @@
 const { getBlocksHash, getTimestamp } = require("../util");
-const { GENESIS_BLOCK } = require("../constants");
+const { processTxs } = require("../../transactions")
 
 /**
  * Check if adding blocks is allowed
@@ -63,26 +63,35 @@ const isBlockStructureValid = block => {
  * @returns {boolean}
  */
 const isChainValid = candidateChain => {
-    // Inner function to check genesis block
     const isGenesisValid = block => {
-        return JSON.stringify(block) === JSON.stringify(GENESIS_BLOCK);
+        return JSON.stringify(block) === JSON.stringify(genesisBlock);
     };
-
-    // Check genesis block.
     if (!isGenesisValid(candidateChain[0])) {
         console.log(
             "The candidateChains's genesisBlock is not the same as our genesisBlock"
         );
-        return false;
+        return null;
     }
 
-    // Check block validation consequently.
+    let foreignUTxOuts = [];
+
     for (let i = 1; i < candidateChain.length; i++) {
-        if (!isBlockValid(candidateChain[i], candidateChain[i - 1])) {
-            return false;
+        const currentBlock = candidateChain[i];
+        if (!isBlockValid(currentBlock, candidateChain[i - 1])) {
+            return null;
+        }
+
+        foreignUTxOuts = processTxs(
+            currentBlock.data,
+            foreignUTxOuts,
+            currentBlock.index
+        );
+
+        if (foreignUTxOuts === null) {
+            return null;
         }
     }
-    return true;
+    return foreignUTxOuts;
 };
 
 module.exports = {
