@@ -1,15 +1,5 @@
 const {createHash, getTimestamp} = require("./utils");
 
-const getBlocksHash = block =>
-    createHash(
-        block.index,
-        block.previousHash,
-        block.timestamp,
-        block.data,
-        block.difficulty,
-        block.nonce
-    );
-
 const isTimeStampValid = (newBlock, oldBlock) => {
     return (
         oldBlock.timestamp - 60 < newBlock.timestamp &&
@@ -28,7 +18,7 @@ const isBlockStructureValid = block => {
 };
 
 const isBlockValid = (candidateBlock, latestBlock) => {
-    const blockHash = createHash(
+    const candidateBlockHash = createHash(
         candidateBlock.index,
         candidateBlock.previousHash,
         candidateBlock.timestamp,
@@ -47,7 +37,7 @@ const isBlockValid = (candidateBlock, latestBlock) => {
             "The previousHash of the candidate block is not the hash of the latest block"
         );
         return false;
-    } else if (getBlocksHash(candidateBlock) !== candidateBlock.hash) {
+    } else if (candidateBlockHash !== candidateBlock.hash) {
         console.log("The hash of this block is invalid");
         return false;
     } else if (!isTimeStampValid(candidateBlock, latestBlock)) {
@@ -58,5 +48,6 @@ const isBlockValid = (candidateBlock, latestBlock) => {
 };
 
 module.exports = {
-    isBlockValid
+    isBlockValid,
+    isBlockStructureValid
 };

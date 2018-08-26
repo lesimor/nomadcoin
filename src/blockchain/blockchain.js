@@ -1,5 +1,4 @@
-const _ = require("lodash"),
-    hexToBinary = require("hex-to-binary");
+const _ = require("lodash");
 
 const {
     getBalance,
@@ -14,22 +13,12 @@ const {addToMempool, getMempool, updateMempool} = require("../transaction/memPoo
 
 const {isBlockValid} = require("./validator");
 
-const {createHash, getTimestamp} = require("./utils");
+const {getTimestamp, sumDifficulty} = require("./utils");
+
+const {Block} = require("./block");
 
 const BLOCK_GENERATION_INTERVAL = 10;
 const DIFFICULTY_ADJUSMENT_INTERVAL = 10;
-
-class Block {
-    constructor(index, hash, previousHash, timestamp, data, difficulty, nonce) {
-        this.index = index;
-        this.hash = hash;
-        this.previousHash = previousHash;
-        this.timestamp = timestamp;
-        this.data = data;
-        this.difficulty = difficulty;
-        this.nonce = nonce;
-    }
-}
 
 const genesisTx = {
     txIns: [{signature: "", txOutId: "", txOutIndex: 0}],
@@ -75,7 +64,7 @@ const createNewRawBlock = data => {
     const newBlockIndex = previousBlock.index + 1;
     const newTimestamp = getTimestamp();
     const difficulty = findDifficulty();
-    const newBlock = findBlock(
+    const newBlock = Block.findBlock(
         newBlockIndex,
         previousBlock.hash,
         newTimestamp,
@@ -114,51 +103,8 @@ const calculateNewDifficulty = (newestBlock, blockchain) => {
     }
 };
 
-const findBlock = (index, previousHash, timestamp, data, difficulty) => {
-    let nonce = 0;
-    while (true) {
-        console.log("Current nonce", nonce);
-        const hash = createHash(
-            index,
-            previousHash,
-            timestamp,
-            data,
-            difficulty,
-            nonce
-        );
-        if (hashMatchesDifficulty(hash, difficulty)) {
-            return new Block(
-                index,
-                hash,
-                previousHash,
-                timestamp,
-                data,
-                difficulty,
-                nonce
-            );
-        }
-        nonce++;
-    }
-};
 
-const hashMatchesDifficulty = (hash, difficulty = 0) => {
-    const hashInBinary = hexToBinary(hash);
-    const requiredZeros = "0".repeat(difficulty);
-    console.log("Trying difficulty:", difficulty, "with hash", hashInBinary);
-    return hashInBinary.startsWith(requiredZeros);
-};
-
-
-const isBlockStructureValid = block => {
-    return (
-        typeof block.index === "number" &&
-        typeof block.hash === "string" &&
-        typeof block.previousHash === "string" &&
-        typeof block.timestamp === "number" &&
-        typeof block.data === "object"
-    );
-};
-
+// TODO: split validation and foreign UTx handler
 const isChainValid = candidateChain => {
     const isGenesisValid = block => {
         return JSON.stringify(block) === JSON.stringify(genesisBlock);
@@ -191,11 +137,6 @@ const isChainValid = candidateChain => {
     return foreignUTxOuts;
 };
 
-const sumDifficulty = anyBlockchain =>
-    anyBlockchain
-        .map(block => block.difficulty)
-        .map(difficulty => Math.pow(2, difficulty))
-        .reduce((a, b) => a + b);
 
 const replaceChain = candidateChain => {
     const foreignUTxOuts = isChainValid(candidateChain);
@@ -261,7 +202,6 @@ module.exports = {
     getNewestBlock,
     getBlockchain,
     createNewBlock,
-    isBlockStructureValid,
     addBlockToChain,
     replaceChain,
     getAccountBalance,
