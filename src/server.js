@@ -3,10 +3,10 @@ const express = require("express"),
   cors = require("cors"),
   bodyParser = require("body-parser"),
   morgan = require("morgan"),
-  Blockchain = require("./blockchain"),
+  Blockchain = require("./blockchain/blockchain"),
   P2P = require("./p2p"),
-  Mempool = require("./mempool"),
-  Wallet = require("./wallet");
+  Mempool = require("./transaction/memPool"),
+  Wallet = require("./wallet/wallet");
 
 const {
   getBlockchain,

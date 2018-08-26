@@ -2,7 +2,7 @@ const elliptic = require("elliptic"),
   path = require("path"),
   fs = require("fs"),
   _ = require("lodash"),
-  Transactions = require("./transactions");
+  Transactions = require("../transaction/transactions");
 
 const {
   getPublicKey,

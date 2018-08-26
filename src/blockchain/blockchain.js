@@ -1,8 +1,8 @@
 const CryptoJS = require("crypto-js"),
   _ = require("lodash"),
-  Wallet = require("./wallet"),
-  Mempool = require("./mempool"),
-  Transactions = require("./transactions"),
+  Wallet = require("../wallet/wallet"),
+  Mempool = require("../transaction/memPool"),
+  Transactions = require("../transaction/transactions"),
   hexToBinary = require("hex-to-binary");
 
 const {
@@ -90,7 +90,7 @@ const createNewRawBlock = data => {
     difficulty
   );
   addBlockToChain(newBlock);
-  require("./p2p").broadcastNewBlock();
+  require("../p2p").broadcastNewBlock();
   return newBlock;
 };
 
@@ -252,7 +252,7 @@ const replaceChain = candidateChain => {
     blockchain = candidateChain;
     uTxOuts = foreignUTxOuts;
     updateMempool(uTxOuts);
-    require("./p2p").broadcastNewBlock();
+    require("../p2p").broadcastNewBlock();
     return true;
   } else {
     return false;
@@ -294,7 +294,7 @@ const sendTx = (address, amount) => {
     getMempool()
   );
   addToMempool(tx, getUTxOutList());
-  require("./p2p").broadcastMempool(); // <--- new line
+  require("../p2p").broadcastMempool(); // <--- new line
   return tx;
 };
 

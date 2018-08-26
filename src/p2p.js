@@ -1,6 +1,6 @@
 const WebSockets = require("ws"),
-  Mempool = require("./mempool"),
-  Blockchain = require("./blockchain");
+  Mempool = require("./transaction/memPool"),
+  Blockchain = require("./blockchain/blockchain");
 
 const {
   getNewestBlock,
