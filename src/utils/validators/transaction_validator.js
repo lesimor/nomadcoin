@@ -4,7 +4,7 @@ const _ = require("lodash"),
 
 const ec = new elliptic.ec("secp256k1");
 
-const {getTxId, getAmountInTxIn} = utils;
+const {getTxId, getAmountInTxIn, getTxInsInPool} = utils;
 
 const {COINBASE_AMOUNT} = require("../constants");
 
@@ -239,7 +239,35 @@ const validateBlockTxs = (txs, uTxOutList, blockIndex) => {
         .reduce((a, b) => a + b, true);
 };
 
+/**
+ * Check if the transaction is valid for pool
+ * @param {Transaction} tx
+ * @param {Transaction[]} mempool
+ * @returns {boolean}
+ */
+const isTxValidForPool = (tx, mempool) => {
+    const txInsInPool = getTxInsInPool(mempool);
+
+    const isTxInAlreadyInPool = (txIns, txIn) => {
+        return _.find(txIns, txInInPool => {
+            return (
+                txIn.txOutIndex === txInInPool.txOutIndex &&
+                txIn.txOutId === txInInPool.txOutId
+            );
+        });
+    };
+
+    for (const txIn of tx.txIns) {
+        if (isTxInAlreadyInPool(txInsInPool, txIn)) {
+            return false;
+        }
+    }
+    return true;
+};
+
+
 module.exports = {
     validateTx,
-    validateBlockTxs
+    validateBlockTxs,
+    isTxValidForPool
 };

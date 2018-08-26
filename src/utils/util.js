@@ -1,5 +1,8 @@
-const CryptoJS = require("crypto-js");
+const CryptoJS = require("crypto-js"),
+    _ = require("lodash"),
+    elliptic = require("elliptic");
 const {Block} = require("../block");
+const ec = new elliptic.ec("secp256k1");
 
 const toHexString = byteArray => {
     return Array.from(byteArray, byte => {
@@ -80,11 +83,28 @@ const findUTxOut = (txOutId, txOutIndex, uTxOutList) => {
 const getAmountInTxIn = (txIn, uTxOutList) =>
     findUTxOut(txIn.txOutId, txIn.txOutIndex, uTxOutList).amount;
 
+/**
+ * Generate random private key
+ * @returns {string}
+ */
 const generatePrivateKey = () => {
     const keyPair = ec.genKeyPair();
     const privateKey = keyPair.getPrivate();
     return privateKey.toString(16);
 };
+
+/**
+ * Extract TxIns from mempool
+ * @param {Transaction[]} mempool
+ * @returns {TxIn[]}
+ */
+const getTxInsInPool = mempool => {
+    return _(mempool)
+        .map(tx => tx.txIns)
+        .flatten()
+        .value();
+};
+
 
 module.exports = {
     toHexString,
@@ -94,5 +114,6 @@ module.exports = {
     getTxId,
     findUTxOut,
     getAmountInTxIn,
-    generatePrivateKey
+    generatePrivateKey,
+    getTxInsInPool
 };

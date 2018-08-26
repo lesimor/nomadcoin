@@ -1,75 +1,63 @@
 const _ = require("lodash"),
-  transaction_validators = require("./utils/validators/transaction_validator");
+    transaction_validators = require("./utils/validators/transaction_validator");
 
-const { validateTx } = transaction_validators;
+const {validateTx, isTxValidForPool} = transaction_validators;
 
 let mempool = [];
 
 const getMempool = () => _.cloneDeep(mempool);
 
-const getTxInsInPool = mempool => {
-  return _(mempool)
-    .map(tx => tx.txIns)
-    .flatten()
-    .value();
-};
-
-const isTxValidForPool = (tx, mempool) => {
-  const txInsInPool = getTxInsInPool(mempool);
-
-  const isTxInAlreadyInPool = (txIns, txIn) => {
-    return _.find(txIns, txInInPool => {
-      return (
-        txIn.txOutIndex === txInInPool.txOutIndex &&
-        txIn.txOutId === txInInPool.txOutId
-      );
-    });
-  };
-
-  for (const txIn of tx.txIns) {
-    if (isTxInAlreadyInPool(txInsInPool, txIn)) {
-      return false;
-    }
-  }
-  return true;
-};
-
+/**
+ * Check if the transaction input is in unspent transaction outputs
+ * @param {TxIn} txIn
+ * @param {UTxOut[]} uTxOutList
+ * @returns {boolean}
+ */
 const hasTxIn = (txIn, uTxOutList) => {
-  const foundTxIn = uTxOutList.find(
-    uTxO => uTxO.txOutId === txIn.txOutId && uTxO.txOutIndex === txIn.txOutIndex
-  );
+    const foundTxIn = uTxOutList.find(
+        uTxO => uTxO.txOutId === txIn.txOutId && uTxO.txOutIndex === txIn.txOutIndex
+    );
 
-  return foundTxIn !== undefined;
+    return foundTxIn !== undefined;
 };
 
+/**
+ * Filter transactions which is not in unspent transaction outputs
+ * @param {UTxOut[]} uTxOutList
+ */
 const updateMempool = uTxOutList => {
-  const invalidTxs = [];
+    const invalidTxs = [];
 
-  for (const tx of mempool) {
-    for (const txIn of tx.txIns) {
-      if (!hasTxIn(txIn, uTxOutList)) {
-        invalidTxs.push(tx);
-        break;
-      }
+    for (const tx of mempool) {
+        for (const txIn of tx.txIns) {
+            if (!hasTxIn(txIn, uTxOutList)) {
+                invalidTxs.push(tx);
+                break;
+            }
+        }
     }
-  }
 
-  if (invalidTxs.length > 0) {
-    mempool = _.without(mempool, ...invalidTxs);
-  }
+    if (invalidTxs.length > 0) {
+        mempool = _.without(mempool, ...invalidTxs);
+    }
 };
 
+/**
+ * Add transaction to mempool
+ * @param {Transaction} tx: Transaction to add
+ * @param {UTxOut[]} uTxOutList
+ */
 const addToMempool = (tx, uTxOutList) => {
-  if (!validateTx(tx, uTxOutList)) {
-    throw Error("This tx is invalid. Will not add it to pool");
-  } else if (!isTxValidForPool(tx, mempool)) {
-    throw Error("This tx is not valid for the pool. Will not add it.");
-  }
-  mempool.push(tx);
+    if (!validateTx(tx, uTxOutList)) {
+        throw Error("This tx is invalid. Will not add it to pool");
+    } else if (!isTxValidForPool(tx, mempool)) {
+        throw Error("This tx is not valid for the pool. Will not add it.");
+    }
+    mempool.push(tx);
 };
 
 module.exports = {
-  addToMempool,
-  getMempool,
-  updateMempool
+    addToMempool,
+    getMempool,
+    updateMempool
 };
