@@ -1,7 +1,7 @@
 const CryptoJS = require("crypto-js"),
   elliptic = require("elliptic"),
   _ = require("lodash"),
-  utils = require("../utils");
+  utils = require("./utils");
 
 const ec = new elliptic.ec("secp256k1");
 
